@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  postgres:
+    image: "postgres:15.2-alpine3.17"
+    ports:
+      - "5432:5432"
+    deploy:
+      mode: global
+    environment:
+      POSTGRES_USER: local
+      POSTGRES_PASSWORD: local
+      POSTGRES_DB: local
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgres/data/
