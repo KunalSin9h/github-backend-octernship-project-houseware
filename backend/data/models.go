@@ -1,8 +1,10 @@
 package data
 
 import (
+	"errors"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -22,28 +24,48 @@ type GormModel struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-type User struct {
-	GormModel
-	FirstName string
-	LastName  string
-	Email     string
-	Username  string
-	Password  string
-	Role      string
-	Org       Organization
-}
-
 type Organization struct {
 	GormModel
 	Name  string
-	Users []User
+	Desc  string
+	Users []User `gorm:"many2many:organization_users;"`
+}
+
+type User struct {
+	GormModel
+	FirstName      string
+	LastName       string
+	Email          string
+	Username       string
+	Password       string
+	Role           string
+	OrganizationID string
+	Organization   Organization `gorm:"foreignKey:OrganizationID"`
 }
 
 func New(dbPood *gorm.DB) Models {
 	db = dbPood
 
+	db.AutoMigrate(&User{})
+
 	return Models{
 		User:         User{},
 		Organization: Organization{},
 	}
+}
+
+func (u *User) PasswordMatch(plainTextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainTextPassword))
+
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			// Invalid Password
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+
+	return true, nil
 }

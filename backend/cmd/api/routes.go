@@ -42,9 +42,7 @@ func (app *Config) routes() http.Handler {
 
 	/* Registering Routes */
 
-	v1.GET("/hello", func(c *gin.Context) {
-		c.String(http.StatusAccepted, "Hello v1")
-	})
+	v1.GET("/login", app.login)
 
 	return router
 }

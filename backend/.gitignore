@@ -21,4 +21,4 @@
 # vendor/
 
 # Database Data
-/db-data/
+deployments/db-data/
