@@ -42,6 +42,7 @@ func (app *Config) routes() http.Handler {
 
 	/* Registering Routes */
 	v1.POST("/login", app.login)
+	v1.POST("/logout", app.logout)
 	v1.GET("/users", app.AuthorizationMiddleware, app.AllOtherUsers)
 
 	return router

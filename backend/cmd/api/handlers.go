@@ -123,6 +123,18 @@ func (app *Config) login(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+func (app *Config) logout(c *gin.Context) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Authorization", "", -1, "", "", false, true)
+
+	res := responsePayload{
+		Message: "Logged out successfully",
+		Error:   "",
+		Data:    nil,
+	}
+	c.JSON(http.StatusOK, res)
+}
+
 func (app *Config) AllOtherUsers(c *gin.Context) {
 	userId, _ := c.Get("userId")
 
@@ -150,7 +162,12 @@ func (app *Config) AllOtherUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"users": users,
-	})
+	res := responsePayload{
+		Message: "Successfully get all other users in organization",
+		Error:   "",
+		Data: map[string]any{
+			"users": users,
+		},
+	}
+	c.JSON(http.StatusOK, res)
 }
