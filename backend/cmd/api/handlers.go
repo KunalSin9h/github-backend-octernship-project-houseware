@@ -93,9 +93,8 @@ func (app *Config) login(c *gin.Context) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId":         user.ID,
-		"organizationId": user.OrganizationID,
-		"exp":            time.Now().Add(time.Hour).Unix(),
+		"userId": user.ID,
+		"exp":    time.Now().Add(time.Hour).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(JWT_SECRET))
@@ -122,4 +121,36 @@ func (app *Config) login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+func (app *Config) AllOtherUsers(c *gin.Context) {
+	userId, _ := c.Get("userId")
+
+	user, err := app.Models.User.GetByID(userId.(string))
+
+	if err != nil {
+		res := responsePayload{
+			Message: "User does not exist",
+			Error:   err.Error(),
+			Data:    nil,
+		}
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	users, err := user.GetAllOtherUsersInOrg()
+
+	if err != nil {
+		res := responsePayload{
+			Message: "Failed to get all users",
+			Error:   err.Error(),
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"users": users,
+	})
 }

@@ -76,6 +76,20 @@ func (u *User) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
+func (u *User) GetByID(id string) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
+	defer cancel()
+
+	var user User
+	err := db.WithContext(ctx).Model(&User{}).Find(&user, "id = ?", id).Error
+
+	if err != nil {
+		return &User{}, err
+	}
+
+	return &user, nil
+}
+
 func (u *User) Insert(user User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
@@ -118,6 +132,21 @@ func (u *User) PasswordMatch(plainTextPassword string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (u *User) GetAllOtherUsersInOrg() ([]User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
+	defer cancel()
+
+	var users []User
+
+	err := db.WithContext(ctx).Model(&User{}).Find(&users, "organization_id = ? and id != ?", u.OrganizationID, u.ID).Error
+
+	if err != nil {
+		return []User{}, err
+	}
+
+	return users, nil
 }
 
 func hashPassword(password string) string {

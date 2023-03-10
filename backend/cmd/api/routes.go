@@ -29,7 +29,7 @@ func (app *Config) routes() http.Handler {
 		Enabling Cors
 	*/
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://*", "https://*"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposeHeaders:    []string{"Link"},
@@ -42,6 +42,7 @@ func (app *Config) routes() http.Handler {
 
 	/* Registering Routes */
 	v1.POST("/login", app.login)
+	v1.GET("/users", app.AuthorizationMiddleware, app.AllOtherUsers)
 
 	return router
 }
