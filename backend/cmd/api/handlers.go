@@ -1,7 +1,6 @@
 package main
 
 import (
-	"houseware---backend-engineering-octernship-KunalSin9h/data"
 	"net/http"
 	"time"
 
@@ -15,87 +14,13 @@ type responsePayload struct {
 	Data    map[string]any `json:"data,omitempty"`
 }
 
-type SignUpRequestPayload struct {
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	Email          string `json:"email"`
-	Username       string `json:"username"`
-	Password       string `json:"password"`
-	Role           string `json:"role"`
-	OrganizationId string `json:"organization_id"`
-}
-
-type loginRequestPayload struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-func (app *Config) signUp(c *gin.Context) {
-
-	var reqPayload SignUpRequestPayload
-
-	err := c.Bind(&reqPayload)
-
-	if err != nil {
-		res := responsePayload{
-			Message: "Error reading request body",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
-		return
-	}
-
-	user := data.User{
-		FirstName:      reqPayload.FirstName,
-		LastName:       reqPayload.LastName,
-		Email:          reqPayload.Email,
-		Username:       reqPayload.Username,
-		Password:       reqPayload.Password,
-		Role:           reqPayload.Role,
-		OrganizationID: reqPayload.OrganizationId,
-	}
-
-	if user.FirstName == "" ||
-		user.LastName == "" ||
-		user.Email == "" ||
-		user.Username == "" ||
-		user.Password == "" ||
-		user.Role == "" ||
-		user.OrganizationID == "" {
-		res := responsePayload{
-			Message: "Missing user details",
-			Error:   "missing user details",
-			Data:    nil,
-		}
-		c.JSON(http.StatusBadRequest, res)
-		return
-	}
-
-	err = app.Models.User.Insert(user)
-
-	if err != nil {
-		res := responsePayload{
-			Message: "Failed to insert user",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
-		return
-	}
-
-	res := responsePayload{
-		Message: "User signed up",
-		Error:   "",
-		Data:    nil,
-	}
-
-	c.JSON(http.StatusOK, res)
-}
-
 func (app *Config) login(c *gin.Context) {
 
-	var reqPayload loginRequestPayload
+	var reqPayload struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
 	err := c.Bind(&reqPayload)
 
 	if err != nil {
@@ -121,7 +46,7 @@ func (app *Config) login(c *gin.Context) {
 		return
 	}
 
-	user, err := app.Models.User.GetUserByUsername(username)
+	user, err := app.Models.User.GetByUsername(username)
 
 	if err != nil {
 		res := responsePayload{
@@ -168,8 +93,9 @@ func (app *Config) login(c *gin.Context) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId": user.ID,
-		"exp":    time.Now().Add(time.Hour).Unix(),
+		"userId":         user.ID,
+		"organizationId": user.OrganizationID,
+		"exp":            time.Now().Add(time.Hour).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(JWT_SECRET))

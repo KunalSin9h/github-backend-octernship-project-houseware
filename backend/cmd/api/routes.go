@@ -42,7 +42,6 @@ func (app *Config) routes() http.Handler {
 
 	/* Registering Routes */
 	v1.POST("/login", app.login)
-	v1.POST("/signup", app.signUp)
 
 	return router
 }

@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,35 +21,30 @@ type Models struct {
 }
 
 type GormModel struct {
-	ID        string         `json:"id" gorm:"primaryKey"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	ID        string    `json:"id" gorm:"primaryKey"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Organization struct {
 	GormModel
 	Name  string `json:"name" gorm:"unique"`
-	Desc  string `json:"desc"`
-	Users []User `json:"users" gorm:"many2many:organization_users;"`
+	Users []User
 }
 
 type User struct {
 	GormModel
-	FirstName      string       `json:"first_name"`
-	LastName       string       `json:"last_name"`
-	Email          string       `json:"email" gorm:"unique"`
-	Username       string       `json:"username" gorm:"unique"`
-	Password       string       `json:"-"`
-	Role           string       `json:"role"`
-	OrganizationID string       `json:"organization_id"`
-	Organization   Organization `json:"organization" gorm:"foreignKey:OrganizationID"`
+	Username       string `json:"username" gorm:"not null;unique"`
+	Password       string `json:"-"`
+	Role           string `json:"role" gorm:"not null"`
+	OrganizationID string `json:"organization_id" gorm:"not null"`
 }
 
 func New(dbPool *gorm.DB) Models {
 	db = dbPool
 
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Organization{}, &User{})
+	populateDatabase()
 
 	return Models{
 		User:         User{},
@@ -56,12 +52,22 @@ func New(dbPool *gorm.DB) Models {
 	}
 }
 
-func (u *User) GetUserByUsername(username string) (*User, error) {
+func (org *Organization) BeforeCreate(tx *gorm.DB) (err error) {
+	org.ID = uuid.NewString()
+	return nil
+}
+
+func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
+	user.ID = uuid.NewString()
+	return nil
+}
+
+func (u *User) GetByUsername(username string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
 
 	var user User
-	err := db.WithContext(ctx).Model(User{}).Find(&user, "username = ?", username).Error
+	err := db.WithContext(ctx).Model(&User{}).Find(&user, "username = ?", username).Error
 
 	if err != nil {
 		return &User{}, err
@@ -83,11 +89,13 @@ func (u *User) Insert(user User) error {
 	user.ID = uuid.NewString()
 	user.Password = string(hashPassword)
 
+	err = db.WithContext(ctx).Create(&user).Error
+
 	if err != nil {
 		return err
 	}
 
-	err = db.WithContext(ctx).Create(&user).Error
+	err = db.WithContext(ctx).Model(&user).Association("Organizations").Append(&Organization{})
 
 	if err != nil {
 		return err
@@ -110,4 +118,49 @@ func (u *User) PasswordMatch(plainTextPassword string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func hashPassword(password string) string {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+
+	if err != nil {
+		log.Fatal("@MODELS Failed to hash password")
+	}
+
+	return string(hash)
+}
+
+func populateDatabase() {
+
+	orgs := []Organization{
+		{Name: "Apple"},
+		{Name: "Google"},
+	}
+
+	for _, org := range orgs {
+		err := db.Model(&Organization{}).Create(&org).Error
+		if err != nil {
+			log.Fatal("@MODELS Failed to populate Organization table")
+		}
+	}
+
+	var appleOrg, googleOrg Organization
+	db.Model(&Organization{}).First(&appleOrg, "Name = ?", "Apple")
+	db.Model(&Organization{}).First(&googleOrg, "Name = ?", "Google")
+
+	users := []User{
+		{Username: "user1", Password: hashPassword("user1"), Role: "admin", OrganizationID: appleOrg.ID},
+		{Username: "user2", Password: hashPassword("user2"), Role: "member", OrganizationID: appleOrg.ID},
+		{Username: "user3", Password: hashPassword("user3"), Role: "admin", OrganizationID: googleOrg.ID},
+		{Username: "user4", Password: hashPassword("user4"), Role: "member", OrganizationID: googleOrg.ID},
+	}
+
+	for _, user := range users {
+		err := db.Model(&User{}).Create(&user).Error
+		if err != nil {
+			log.Fatal("@MODELS Failed to populate User table")
+		}
+	}
+
+	log.Println("@MODELS Successfully populated database")
 }
