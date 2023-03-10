@@ -41,8 +41,8 @@ func (app *Config) routes() http.Handler {
 	v1 := router.Group("/v1")
 
 	/* Registering Routes */
-
-	v1.GET("/login", app.login)
+	v1.POST("/login", app.login)
+	v1.POST("/signup", app.signUp)
 
 	return router
 }

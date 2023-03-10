@@ -18,8 +18,9 @@ type Config struct {
 }
 
 var (
-	PORT = os.Getenv("PORT")
-	DSN  = os.Getenv("DSN")
+	PORT       = os.Getenv("PORT")
+	DSN        = os.Getenv("DSN")
+	JWT_SECRET = os.Getenv("JWT_SECRET")
 )
 
 func init() {
@@ -32,6 +33,12 @@ func init() {
 		log.Println("@MAIN Missing Database Connection String (DSN) in Env. Using postgres://local:local@localhost:5432/local")
 		DSN = "postgres://local:local@localhost:5432/local"
 	}
+
+	if JWT_SECRET == "" {
+		log.Println("@MAIN Missing JWT Secret in Env. Using $ecret")
+		JWT_SECRET = "$ecret"
+	}
+
 }
 
 func main() {
