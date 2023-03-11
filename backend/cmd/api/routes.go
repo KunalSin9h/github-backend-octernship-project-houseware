@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +8,7 @@ import (
 /*
 routes returns all the routes for the application.
 */
-func (app *Config) routes() http.Handler {
+func (app *Config) routes() *gin.Engine {
 
 	router := gin.New()
 

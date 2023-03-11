@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -159,7 +160,34 @@ func hashPassword(password string) string {
 	return string(hash)
 }
 
+func ConnectDatabase(DSN string) *gorm.DB {
+	numberOfTry := 0
+	numberOfTryLimit := 5
+
+	for {
+		db, err := gorm.Open(postgres.Open(DSN), &gorm.Config{})
+
+		if err != nil {
+			numberOfTry++
+			log.Printf("@MAIN Trying to connect to Postgres Database...[%d/%d]", numberOfTry, numberOfTryLimit)
+		} else {
+			log.Println("@MAIN Successfully Connected to Postgres Database")
+			return db
+		}
+
+		if numberOfTry >= numberOfTryLimit {
+			log.Fatal("@MAIN Failed to Connect to Postgres Database")
+		}
+
+		holdTime := numberOfTry * numberOfTry // numberOfTry ^ 2
+		log.Printf("@MAIN Retrying to connect in %d sec", holdTime)
+		time.Sleep(time.Duration(holdTime) * time.Second)
+	}
+}
+
 func populateDatabase() {
+
+	db.Exec("TRUNCATE users, organizations")
 
 	orgs := []Organization{
 		{Name: "Apple"},
