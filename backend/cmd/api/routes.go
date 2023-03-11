@@ -41,7 +41,8 @@ func (app *Config) routes() *gin.Engine {
 	/* Registering Routes */
 	v1.POST("/login", app.login)
 	v1.POST("/logout", app.logout)
-	v1.GET("/users", app.AuthorizationMiddleware, app.AllOtherUsers)
+	v1.GET("/users", app.AuthorizationMiddleware, app.allUsers)
+	v1.POST("/adduser", app.AuthorizationMiddleware, app.addUser)
 
 	return router
 }
