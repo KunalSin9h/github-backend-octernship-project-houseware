@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+
+  auth-service:
+    build:
+      context: ../
+      dockerfile: ./deployments/Dockerfile
+    ports:
+      - "5000:5000"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      PORT: 5000
+      DSN: "postgres://local:local@postgres:5432/local"
+      JWT_SECRET: secret
+
+  postgres:
+    image: "postgres:15.2-alpine3.17"
+    ports:
+      - "5432:5432"
+    deploy:
+      mode: global
+    environment:
+      POSTGRES_USER: local
+      POSTGRES_PASSWORD: local
+      POSTGRES_DB: local

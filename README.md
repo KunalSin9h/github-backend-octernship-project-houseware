@@ -1,30 +1,32 @@
+## See the Project Documentation at [backend/README.md](backend/README.md)
+
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-c66648af7eb3fe8bc4f294546bfd86ef473780cde1dea487d3c4ff354943c9ae.svg)](https://classroom.github.com/online_ide?assignment_repo_id=10419283&assignment_repo_type=AssignmentRepo)
+
 ## Houseware
 
-### Company information 
+### Company information
 
-Houseware's vision is to empower the next generation of knowledge workers by putting the data warehouse in their hands, in the language they speak. Houseware is purpose-built for the Data Cloud’s untouched creators, empowering internal apps across organizations. 
+Houseware's vision is to empower the next generation of knowledge workers by putting the data warehouse in their hands, in the language they speak. Houseware is purpose-built for the Data Cloud’s untouched creators, empowering internal apps across organizations.
 
 ### Why participate in an Octernship with Houseware
 
-Houseware is changing the way the data warehouse is leveraged, and we want you to help build Houseware! Our team came together to answer the singular question, "how can we flip the value of the data warehouse to the ones who really need it, to the ones who drive decisions". 
+Houseware is changing the way the data warehouse is leveraged, and we want you to help build Houseware! Our team came together to answer the singular question, "how can we flip the value of the data warehouse to the ones who really need it, to the ones who drive decisions".
 
 In this role, you'll have the opportunity to work as a Backend engineer with the Houseware team on multiple customer-facing projects, the role being intensive in technical architecture and backend engineering. The ability to have a constant pulse on the engineering team’s shipping velocity, while accounting for stability and technical debt looking forward is crucial.
 
 ### Octernship role description
 
-We're looking for backend developers to join the Houseware team. 
+We're looking for backend developers to join the Houseware team.
 
 We are hell-bent on building a forward-looking product, something that constantly pushes us to think by first principles and question assumptions, building a team that is agile in adapting and ever curious. While fast-paced execution is one of the prerequisites in this role, equally important is the ability to pause and take stock of where product/engineering is heading from a long-term perspective. Your initiative is another thing that we would expect to shine through here, as you continuously navigate through ambiguous waters while working with vigor on open-ended questions - all to solve problems for and empathize with the end users.
 
-You are expected to own the backend and infrastructure stack end-to-end, understand the business use cases, map it to the best-in-class engineering systems while maintaining a great developer experience. This role involves a high level of attention to detail, debugging and testing skills, as well as long-term thinking with respect to the scalability of our platform. 
+You are expected to own the backend and infrastructure stack end-to-end, understand the business use cases, map it to the best-in-class engineering systems while maintaining a great developer experience. This role involves a high level of attention to detail, debugging and testing skills, as well as long-term thinking with respect to the scalability of our platform.
 
-
-| Octernship info  | Timelines and Stipend |
-| ------------- | ------------- |
-| Assignment Deadline  | 26 March 2023  |
-| Octernship Duration  | 3-6 Months  |
-| Monthly Stipend  | $600 USD  |
+| Octernship info     | Timelines and Stipend |
+| ------------------- | --------------------- |
+| Assignment Deadline | 26 March 2023         |
+| Octernship Duration | 3-6 Months            |
+| Monthly Stipend     | $600 USD              |
 
 ### Recommended qualifications
 
@@ -38,11 +40,11 @@ You’d be a great fit if:
 
 To participate, you must be:
 
-* A [verified student](https://education.github.com/discount_requests/pack_application) on Global Campus
+- A [verified student](https://education.github.com/discount_requests/pack_application) on Global Campus
 
-* 18 years or older
+- 18 years or older
 
-* Active contributor on GitHub (monthly)
+- Active contributor on GitHub (monthly)
 
 # Assignment
 
@@ -51,6 +53,7 @@ To participate, you must be:
 ### Task instructions
 
 The assignment is to create a backend API service in Golang that handles authorization and authentication for a web app. The details of the web app are as follows:
+
 - A simple web app where users in an organization can signin and list all other users in their organization
 - Logging in is performed by supplying a `username, password` combination
 - Note that all passwords should be hashed when stored in a database for security purposes
@@ -62,6 +65,7 @@ The assignment is to create a backend API service in Golang that handles authori
 - Note that any user shouldn't be able to view/add/delete user accounts into any other organization.
 
 The API should follow REST API conventions, feel free to design the API structure as you may. The API should cover the following functionalities:
+
 - User Login
 - User Logout
 - Admin User adds a new User account(by providing the username & password)
@@ -71,13 +75,13 @@ The API should follow REST API conventions, feel free to design the API structur
 Note: Do add unit tests(for success & failure) for each API endpoint.
 
 Provided in this Github template is a Golang Standard repository, you'd have to design an ideal architecture/stack for this problem
+
 - Golang framework for this API
 - Which Database shall be used to store the user details?
 - The ORM that shall be used for interfacing with the Database
 - DB design
 
 Do document the design decisions and the rationale behind the same in a README file.
-
 
 ### Task Expectations
 
@@ -87,7 +91,7 @@ Do document the design decisions and the rationale behind the same in a README f
 
 ### Task submission
 
-Students are expected to use the [GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow) when working on their project. 
+Students are expected to use the [GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow) when working on their project.
 
 1. Making changes on the auto generated `feedback` branch to complete the task
 2. Using the auto generated **Feedback Pull Request** for review and submission
