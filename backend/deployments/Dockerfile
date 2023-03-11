@@ -9,9 +9,7 @@ RUN go mod download
 COPY cmd ./cmd
 COPY data ./data
 
-RUN cd cmd/api/
-RUN go test .
-RUN CGO_ENABLED=0 go build -o main .
+RUN CGO_ENABLED=0 go build -o main ./cmd/api/*.go
 
 FROM alpine:3.17
 

@@ -39,10 +39,17 @@ func (app *Config) routes() *gin.Engine {
 	v1 := router.Group("/v1")
 
 	/* Registering Routes */
-	v1.POST("/login", app.login)
-	v1.POST("/logout", app.logout)
+	v1.POST("/login", app.login)   // User Login
+	v1.POST("/logout", app.logout) // User Logout
+
+	// Admin User adds a new User account(by providing the username & password)
+	v1.POST("/add", app.AuthorizationMiddleware, app.addUser)
+
+	// Admin User deletes an existing User account from their organization
+	v1.POST("/delete", app.AuthorizationMiddleware, app.deleteUser)
+
+	//List all Users in their organization
 	v1.GET("/users", app.AuthorizationMiddleware, app.allUsers)
-	v1.POST("/adduser", app.AuthorizationMiddleware, app.addUser)
 
 	return router
 }

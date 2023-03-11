@@ -256,3 +256,76 @@ func (app *Config) addUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, res)
 }
+
+func (app *Config) deleteUser(c *gin.Context) {
+	currentUserId, _ := c.Get("userId")
+
+	currentUser, err := app.Models.User.GetByID(currentUserId.(string))
+
+	if err != nil {
+		res := responsePayload{
+			Message: "User does not exist",
+			Error:   err.Error(),
+			Data:    nil,
+		}
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	if currentUser.Role != "admin" {
+		res := responsePayload{
+			Message: "Not Authorized",
+			Error:   "not authorized",
+			Data:    nil,
+		}
+		c.JSON(http.StatusUnauthorized, res)
+		return
+	}
+
+	var reqPayload struct {
+		Username string `json:"username"`
+	}
+
+	err = c.Bind(&reqPayload)
+
+	if err != nil {
+		res := responsePayload{
+			Message: "Error reading request body",
+			Error:   err.Error(),
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	username := reqPayload.Username
+
+	if username == "" {
+		res := responsePayload{
+			Message: "Missing Username in request",
+			Error:   "missing username in request",
+			Data:    nil,
+		}
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	err = app.Models.User.Delete(username)
+
+	if err != nil {
+		res := responsePayload{
+			Message: "Failed to delete user",
+			Error:   err.Error(),
+			Data:    nil,
+		}
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	res := responsePayload{
+		Message: "Successfully delete user from organization",
+		Error:   "",
+		Data:    nil,
+	}
+	c.JSON(http.StatusOK, res)
+}

@@ -63,6 +63,13 @@ func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return nil
 }
 
+func (u *User) BeforeDelete(tx *gorm.DB) (err error) {
+	if u.Role == "admin" {
+		return errors.New("admin user not allowed to delete")
+	}
+	return
+}
+
 func (u *User) GetByUsername(username string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
@@ -101,7 +108,6 @@ func (u *User) Insert(user User) error {
 		return err
 	}
 
-	user.ID = uuid.NewString()
 	user.Password = string(hashPassword)
 
 	err = db.WithContext(ctx).Create(&user).Error
@@ -110,7 +116,18 @@ func (u *User) Insert(user User) error {
 		return err
 	}
 
-	err = db.WithContext(ctx).Model(&user).Association("Organizations").Append(&Organization{})
+	return nil
+}
+
+func (u *User) Delete(username string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
+	defer cancel()
+
+	user := User{
+		Username: username,
+	}
+
+	err := db.WithContext(ctx).Model(&User{}).Where("username = ?", username).Delete(&user).Error
 
 	if err != nil {
 		return err
