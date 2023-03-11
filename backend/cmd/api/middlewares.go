@@ -11,12 +11,7 @@ import (
 )
 
 func unAuthorizedResponse(c *gin.Context, err error) {
-	res := responsePayload{
-		Message: "UnAuthorized",
-		Error:   err.Error(),
-		Data:    nil,
-	}
-	c.JSON(http.StatusUnauthorized, res)
+	sendResponse("UnAuthorized", err.Error(), nil, c, http.StatusUnauthorized)
 	c.Abort()
 }
 

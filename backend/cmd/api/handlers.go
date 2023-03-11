@@ -9,10 +9,17 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type responsePayload struct {
-	Message string         `json:"message"`
-	Error   string         `json:"error"`
-	Data    map[string]any `json:"data,omitempty"`
+func sendResponse(message, err string, data map[string]any, c *gin.Context, code int) {
+	var sendResponse struct {
+		Message string         `json:"message"`
+		Error   string         `json:"error"`
+		Data    map[string]any `json:"data,omitempty"`
+	}
+	sendResponse.Message = message
+	sendResponse.Error = err
+	sendResponse.Data = data
+
+	c.JSON(code, sendResponse)
 }
 
 func (app *Config) login(c *gin.Context) {
@@ -25,12 +32,7 @@ func (app *Config) login(c *gin.Context) {
 	err := c.Bind(&reqPayload)
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Error reading request body",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Error reading request body", err.Error(), nil, c, http.StatusInternalServerError)
 		return
 	}
 
@@ -38,58 +40,33 @@ func (app *Config) login(c *gin.Context) {
 	password := reqPayload.Password
 
 	if username == "" || password == "" {
-		res := responsePayload{
-			Message: "Missing Username or Password in request",
-			Error:   "missing username or password in request",
-			Data:    nil,
-		}
-		c.JSON(http.StatusBadRequest, res)
+		sendResponse("Missing Username or Password in request", "missing username or password in request", nil, c, http.StatusBadRequest)
 		return
 	}
 
 	user, err := app.Models.User.GetByUsername(username)
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Error while getting user",
-			Error:   "error while getting user",
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Error while getting user", "error while getting user", nil, c, http.StatusInternalServerError)
 		return
 	}
 
 	if user.ID == "" {
 		// User Does not exist
-		res := responsePayload{
-			Message: "Invalid username or password",
-			Error:   "invalid username or password",
-			Data:    nil,
-		}
-		c.JSON(http.StatusBadRequest, res)
+		sendResponse("Invalid username of password", "invalid username or password", nil, c, http.StatusBadRequest)
 		return
 	}
 
 	isPasswordMatched, err := user.PasswordMatch(password)
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Error while verifying password",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Error while verifying password", err.Error(), nil, c, http.StatusInternalServerError)
 		return
 	}
 
 	if !isPasswordMatched {
 		// invalid password
-		res := responsePayload{
-			Message: "Invalid username or password",
-			Error:   "invalid username or password",
-			Data:    nil,
-		}
-		c.JSON(http.StatusUnauthorized, res)
+		sendResponse("Invalid username or password", "invalid username or password", nil, c, http.StatusUnauthorized)
 		return
 	}
 
@@ -101,39 +78,23 @@ func (app *Config) login(c *gin.Context) {
 	tokenString, err := token.SignedString([]byte(JWT_SECRET))
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Failed to create JWT Token",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Failed to create JWT Token", err.Error(), nil, c, http.StatusInternalServerError)
 		return
 	}
 
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, 3600, "", "", false, true)
 
-	res := responsePayload{
-		Message: "User Signed in",
-		Error:   "",
-		Data: map[string]any{
-			"user": user,
-		},
-	}
-
-	c.JSON(http.StatusOK, res)
+	sendResponse("User Signed in", "", map[string]any{
+		"user": user,
+	}, c, http.StatusOK)
 }
 
 func (app *Config) logout(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", "", -1, "", "", false, true)
 
-	res := responsePayload{
-		Message: "Logged out successfully",
-		Error:   "",
-		Data:    nil,
-	}
-	c.JSON(http.StatusOK, res)
+	sendResponse("Logged out successfully", "", nil, c, http.StatusOK)
 }
 
 func (app *Config) allUsers(c *gin.Context) {
@@ -142,35 +103,20 @@ func (app *Config) allUsers(c *gin.Context) {
 	user, err := app.Models.User.GetByID(userId.(string))
 
 	if err != nil {
-		res := responsePayload{
-			Message: "User does not exist",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusBadRequest, res)
+		sendResponse("User does not exist", err.Error(), nil, c, http.StatusBadRequest)
 		return
 	}
 
 	users, err := user.GetAllOtherUsersInOrg()
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Failed to get all users",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Failed to get all users", err.Error(), nil, c, http.StatusInternalServerError)
 		return
 	}
 
-	res := responsePayload{
-		Message: "Successfully get all other users in organization",
-		Error:   "",
-		Data: map[string]any{
-			"users": users,
-		},
-	}
-	c.JSON(http.StatusOK, res)
+	sendResponse("Successfully get all other users in organization", "", map[string]any{
+		"users": users,
+	}, c, http.StatusOK)
 }
 
 func (app *Config) addUser(c *gin.Context) {
@@ -179,22 +125,12 @@ func (app *Config) addUser(c *gin.Context) {
 	currentUser, err := app.Models.User.GetByID(currentUserId.(string))
 
 	if err != nil {
-		res := responsePayload{
-			Message: "User does not exist",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusBadRequest, res)
+		sendResponse("User does not exist", err.Error(), nil, c, http.StatusBadRequest)
 		return
 	}
 
 	if currentUser.Role != "admin" {
-		res := responsePayload{
-			Message: "Not Authorized",
-			Error:   "not authorized",
-			Data:    nil,
-		}
-		c.JSON(http.StatusUnauthorized, res)
+		sendResponse("Not Authorized", "not authorized", nil, c, http.StatusUnauthorized)
 		return
 	}
 
@@ -206,12 +142,7 @@ func (app *Config) addUser(c *gin.Context) {
 	err = c.Bind(&reqPayload)
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Error reading request body",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Error reading request body", err.Error(), nil, c, http.StatusInternalServerError)
 		return
 	}
 
@@ -219,12 +150,7 @@ func (app *Config) addUser(c *gin.Context) {
 	password := reqPayload.Password
 
 	if username == "" || password == "" {
-		res := responsePayload{
-			Message: "Missing Username or Password in request",
-			Error:   "missing username or password in request",
-			Data:    nil,
-		}
-		c.JSON(http.StatusBadRequest, res)
+		sendResponse("Missing Username or Password in request", "missing username or password in request", nil, c, http.StatusBadRequest)
 		return
 	}
 
@@ -238,23 +164,13 @@ func (app *Config) addUser(c *gin.Context) {
 	err = app.Models.User.Insert(userToAdd)
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Failed to add new user",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Failed to add new user", err.Error(), nil, c, http.StatusInternalServerError)
 		return
 	}
 
-	res := responsePayload{
-		Message: "Successfully add new user",
-		Error:   "",
-		Data: map[string]any{
-			"user": userToAdd,
-		},
-	}
-	c.JSON(http.StatusOK, res)
+	sendResponse("Successfully add new user", "", map[string]any{
+		"user": userToAdd,
+	}, c, http.StatusOK)
 }
 
 func (app *Config) deleteUser(c *gin.Context) {
@@ -263,22 +179,12 @@ func (app *Config) deleteUser(c *gin.Context) {
 	currentUser, err := app.Models.User.GetByID(currentUserId.(string))
 
 	if err != nil {
-		res := responsePayload{
-			Message: "User does not exist",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusBadRequest, res)
+		sendResponse("Failed to get user", err.Error(), nil, c, http.StatusBadRequest)
 		return
 	}
 
 	if currentUser.Role != "admin" {
-		res := responsePayload{
-			Message: "Not Authorized",
-			Error:   "not authorized",
-			Data:    nil,
-		}
-		c.JSON(http.StatusUnauthorized, res)
+		sendResponse("Not Authorized", "not authorized", nil, c, http.StatusUnauthorized)
 		return
 	}
 
@@ -289,43 +195,35 @@ func (app *Config) deleteUser(c *gin.Context) {
 	err = c.Bind(&reqPayload)
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Error reading request body",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Error reading request body", err.Error(), nil, c, http.StatusInternalServerError)
 		return
 	}
 
 	username := reqPayload.Username
 
 	if username == "" {
-		res := responsePayload{
-			Message: "Missing Username in request",
-			Error:   "missing username in request",
-			Data:    nil,
-		}
-		c.JSON(http.StatusBadRequest, res)
+		sendResponse("Missing username in request", "missing username in request", nil, c, http.StatusBadRequest)
 		return
 	}
 
-	err = app.Models.User.Delete(username)
+	userToDelete, err := app.Models.User.GetByUsername(username)
 
 	if err != nil {
-		res := responsePayload{
-			Message: "Failed to delete user",
-			Error:   err.Error(),
-			Data:    nil,
-		}
-		c.JSON(http.StatusInternalServerError, res)
+		sendResponse("Failed to delete user", err.Error(), nil, c, http.StatusInternalServerError)
 		return
 	}
 
-	res := responsePayload{
-		Message: "Successfully delete user from organization",
-		Error:   "",
-		Data:    nil,
+	if userToDelete.ID == "" || currentUser.OrganizationID != userToDelete.OrganizationID {
+		sendResponse("Not Authorized", "not authorized", nil, c, http.StatusUnauthorized)
+		return
 	}
-	c.JSON(http.StatusOK, res)
+
+	err = userToDelete.Delete()
+
+	if err != nil {
+		sendResponse("Failed to delete user", err.Error(), nil, c, http.StatusBadRequest)
+		return
+	}
+
+	sendResponse("Successfully delete user from organization", "", nil, c, http.StatusOK)
 }

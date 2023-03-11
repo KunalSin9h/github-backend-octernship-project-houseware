@@ -63,8 +63,8 @@ func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func (u *User) BeforeDelete(tx *gorm.DB) (err error) {
-	if u.Role == "admin" {
+func (user *User) BeforeDelete(tx *gorm.DB) (err error) {
+	if user.Role == "admin" {
 		return errors.New("admin user not allowed to delete")
 	}
 	return
@@ -119,15 +119,11 @@ func (u *User) Insert(user User) error {
 	return nil
 }
 
-func (u *User) Delete(username string) error {
+func (u *User) Delete() error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
 
-	user := User{
-		Username: username,
-	}
-
-	err := db.WithContext(ctx).Model(&User{}).Where("username = ?", username).Delete(&user).Error
+	err := db.WithContext(ctx).Model(&User{}).Delete(&u).Error
 
 	if err != nil {
 		return err
@@ -167,16 +163,6 @@ func (u *User) GetAllOtherUsersInOrg() ([]User, error) {
 	return users, nil
 }
 
-func hashPassword(password string) string {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), 12)
-
-	if err != nil {
-		log.Fatal("@MODELS Failed to hash password")
-	}
-
-	return string(hash)
-}
-
 func ConnectDatabase(DSN string) *gorm.DB {
 	numberOfTry := 0
 	numberOfTryLimit := 5
@@ -207,8 +193,8 @@ func populateDatabase() {
 	db.Exec("TRUNCATE users, organizations")
 
 	orgs := []Organization{
-		{Name: "Apple"},
-		{Name: "Google"},
+		{Name: "ORG-1"},
+		{Name: "ORG-2"},
 	}
 
 	for _, org := range orgs {
@@ -218,15 +204,27 @@ func populateDatabase() {
 		}
 	}
 
-	var appleOrg, googleOrg Organization
-	db.Model(&Organization{}).First(&appleOrg, "Name = ?", "Apple")
-	db.Model(&Organization{}).First(&googleOrg, "Name = ?", "Google")
+	var org_1, org_2 Organization
+	db.Model(&Organization{}).First(&org_1, "Name = ?", "ORG-1")
+	db.Model(&Organization{}).First(&org_2, "Name = ?", "ORG-2")
+
+	password, err := bcrypt.GenerateFromPassword([]byte("password"), 12)
+
+	if err != nil {
+		log.Fatal("@MODELS Failed to hash password for dummy data")
+	}
 
 	users := []User{
-		{Username: "user1", Password: hashPassword("user1"), Role: "admin", OrganizationID: appleOrg.ID},
-		{Username: "user2", Password: hashPassword("user2"), Role: "member", OrganizationID: appleOrg.ID},
-		{Username: "user3", Password: hashPassword("user3"), Role: "admin", OrganizationID: googleOrg.ID},
-		{Username: "user4", Password: hashPassword("user4"), Role: "member", OrganizationID: googleOrg.ID},
+		// ORG-1 Members
+		{Username: "User-1", Password: string(password), Role: "admin", OrganizationID: org_1.ID},
+		{Username: "User-2", Password: string(password), Role: "admin", OrganizationID: org_1.ID},
+		{Username: "User-3", Password: string(password), Role: "member", OrganizationID: org_1.ID},
+		{Username: "User-4", Password: string(password), Role: "member", OrganizationID: org_1.ID},
+		// ORG-2 Members
+		{Username: "User-5", Password: string(password), Role: "admin", OrganizationID: org_2.ID},
+		{Username: "User-6", Password: string(password), Role: "admin", OrganizationID: org_2.ID},
+		{Username: "User-7", Password: string(password), Role: "member", OrganizationID: org_2.ID},
+		{Username: "User-8", Password: string(password), Role: "member", OrganizationID: org_2.ID},
 	}
 
 	for _, user := range users {
