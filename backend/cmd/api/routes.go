@@ -46,7 +46,7 @@ func (app *Config) routes() *gin.Engine {
 	v1.POST("/add", app.AuthorizationMiddleware, app.addUser)
 
 	// Admin User deletes an existing User account from their organization
-	v1.POST("/delete", app.AuthorizationMiddleware, app.deleteUser)
+	v1.DELETE("/delete", app.AuthorizationMiddleware, app.deleteUser)
 
 	//List all Users in their organization
 	v1.GET("/users", app.AuthorizationMiddleware, app.allUsers)
