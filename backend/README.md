@@ -99,6 +99,8 @@ The dummy data looks like
 
 Here the members with start are `admins`
 
+Every user has password of `password`
+
 ### Things to do
 
 - [ ] Testing
