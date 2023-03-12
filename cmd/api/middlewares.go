@@ -15,6 +15,10 @@ func unAuthorizedResponse(c *gin.Context, err error) {
 	c.Abort()
 }
 
+/*
+AuthorizationMiddleware is a middleware that checks for the Authorization header in the Cookie.
+It checks for the validity of the token and if it is valid, it sets the userId in the context.
+*/
 func (app *Config) AuthorizationMiddleware(c *gin.Context) {
 
 	authTokenString, err := c.Cookie("Authorization")

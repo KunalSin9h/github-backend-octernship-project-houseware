@@ -41,6 +41,10 @@ type User struct {
 	OrganizationID string `json:"organization_id" gorm:"not null"`
 }
 
+/*
+data.New is a function that takes a pointer to a gorm.DB object and returns a Models struct.
+It sets the package level variable db to the gorm.DB object passed to it.
+*/
 func New(dbPool *gorm.DB) Models {
 	db = dbPool
 
@@ -53,16 +57,24 @@ func New(dbPool *gorm.DB) Models {
 	}
 }
 
+/*
+=====================
+HOOKS
+=====================
+*/
+// BeforeCreate hook is used to generate a UUID for the ID field of the Organization struct
 func (org *Organization) BeforeCreate(tx *gorm.DB) (err error) {
 	org.ID = uuid.NewString()
 	return nil
 }
 
+// BeforeCreate hook is used to generate a UUID for the ID field of the User struct
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
 	user.ID = uuid.NewString()
 	return nil
 }
 
+// BeforeDelete hook is used to prevent the deletion of the admin user
 func (user *User) BeforeDelete(tx *gorm.DB) (err error) {
 	if user.Role == "admin" {
 		return errors.New("admin user not allowed to delete")
@@ -70,6 +82,9 @@ func (user *User) BeforeDelete(tx *gorm.DB) (err error) {
 	return
 }
 
+/*
+GetByUsername is a method that takes a username and returns a User struct and an error.
+*/
 func (u *User) GetByUsername(username string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
@@ -84,6 +99,9 @@ func (u *User) GetByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
+/*
+GetById is a method that takes an id and returns a User struct and an error.
+*/
 func (u *User) GetByID(id string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
@@ -98,6 +116,9 @@ func (u *User) GetByID(id string) (*User, error) {
 	return &user, nil
 }
 
+/*
+Insert is a method that inserts a User struct into the database and returns an error.
+*/
 func (u *User) Insert(user User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
@@ -119,6 +140,9 @@ func (u *User) Insert(user User) error {
 	return nil
 }
 
+/*
+Delete is a method that deletes a User struct from the database and returns an error.
+*/
 func (u *User) Delete() error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
@@ -132,6 +156,9 @@ func (u *User) Delete() error {
 	return nil
 }
 
+/*
+PasswordMatch is a method that takes a plain text password and matches it with hash password and returns a boolean and an error.
+*/
 func (u *User) PasswordMatch(plainTextPassword string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainTextPassword))
 
@@ -148,6 +175,9 @@ func (u *User) PasswordMatch(plainTextPassword string) (bool, error) {
 	return true, nil
 }
 
+/*
+GetAllUsersInOrg is a method that returns all other users from the same organization
+*/
 func (u *User) GetAllOtherUsersInOrg() ([]User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
@@ -163,6 +193,9 @@ func (u *User) GetAllOtherUsersInOrg() ([]User, error) {
 	return users, nil
 }
 
+/*
+ConnectDatabase is used to connect to database
+*/
 func ConnectDatabase(DSN string) *gorm.DB {
 	numberOfTry := 0
 	numberOfTryLimit := 5
@@ -188,6 +221,10 @@ func ConnectDatabase(DSN string) *gorm.DB {
 	}
 }
 
+/*
+PopulateDatabase is used to populate the database with dummy data
+You can see the visual representation of the data in the README.md file
+*/
 func populateDatabase() {
 
 	db.Exec("TRUNCATE users, organizations")

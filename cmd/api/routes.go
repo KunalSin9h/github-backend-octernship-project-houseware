@@ -12,20 +12,14 @@ func (app *Config) routes() *gin.Engine {
 
 	router := gin.New()
 
-	/*
-		Logger instances a Logger middleware that will write the logs to gin.DefaultWriter.
-		By default, gin.DefaultWriter = os.Stdout.
-	*/
+	// Logger instances a Logger middleware that will write the logs to gin.DefaultWriter.
+	// By default, gin.DefaultWriter = os.Stdout.
 	router.Use(gin.Logger())
 
-	/*
-		Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
-	*/
+	// Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
 	router.Use(gin.Recovery())
 
-	/*
-		Enabling Cors
-	*/
+	//	Enabling Cors
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "DELETE"},
@@ -35,10 +29,10 @@ func (app *Config) routes() *gin.Engine {
 		MaxAge:           300,
 	}))
 
-	/* Grouping by version */
+	//Grouping by version
 	v1 := router.Group("/v1")
 
-	/* Registering Routes */
+	// Registering Routes
 	v1.POST("/login", app.login)   // User Login
 	v1.POST("/logout", app.logout) // User Logout
 

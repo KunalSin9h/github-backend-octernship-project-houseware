@@ -22,6 +22,10 @@ func sendResponse(message, err string, data map[string]any, c *gin.Context, code
 	c.JSON(code, sendResponse)
 }
 
+/*
+Login is a handler that takes the username and password from the request body and checks if the user exists.
+If user exist in the data base then it create a JWT token and set it in the cookie.
+*/
 func (app *Config) login(c *gin.Context) {
 
 	var reqPayload struct {
@@ -90,6 +94,9 @@ func (app *Config) login(c *gin.Context) {
 	}, c, http.StatusOK)
 }
 
+/*
+Logout is a handler that takes the JWT token from the cookie and set it to empty string.
+*/
 func (app *Config) logout(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", "", -1, "", "", false, true)
@@ -97,6 +104,9 @@ func (app *Config) logout(c *gin.Context) {
 	sendResponse("Logged out successfully", "", nil, c, http.StatusOK)
 }
 
+/*
+AllUsers is a handler that return all other users in the organization.
+*/
 func (app *Config) allUsers(c *gin.Context) {
 	userId, _ := c.Get("userId")
 
@@ -119,6 +129,10 @@ func (app *Config) allUsers(c *gin.Context) {
 	}, c, http.StatusOK)
 }
 
+/*
+AddUser is a handler that takes the username and password from the request body and add a new user in the organization.
+It can only be called by an admin.
+*/
 func (app *Config) addUser(c *gin.Context) {
 	currentUserId, _ := c.Get("userId")
 
@@ -173,6 +187,10 @@ func (app *Config) addUser(c *gin.Context) {
 	}, c, http.StatusOK)
 }
 
+/*
+DeleteUser is a handler that takes the username from the request body and delete the user from the organization.
+It can only be called by an admin.
+*/
 func (app *Config) deleteUser(c *gin.Context) {
 	currentUserId, _ := c.Get("userId")
 
