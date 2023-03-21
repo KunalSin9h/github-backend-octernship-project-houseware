@@ -7,6 +7,9 @@ package data
 	                      \__ Repository
 						  /
 	TestRepository-------
+
+	TestRepository will also define these methods but they will be dummy and return
+	data without query the database
 */
 
 type Repository interface {

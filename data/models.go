@@ -22,15 +22,14 @@ type PostgresRepository struct {
 
 func NewPostgresRepository(pool *gorm.DB) *PostgresRepository {
 	db = pool
+
+	db.AutoMigrate(&Organization{}, &User{})
+	populateDatabase()
+
 	return &PostgresRepository{
 		Conn: pool,
 	}
 }
-
-// type Models struct {
-// 	User         User
-// 	Organization Organization
-// }
 
 type GormModel struct {
 	ID        string    `json:"id" gorm:"primaryKey"`
@@ -51,22 +50,6 @@ type User struct {
 	Role           string `json:"role" gorm:"not null"`
 	OrganizationID string `json:"organization_id" gorm:"not null"`
 }
-
-/*
-data.New is a function that takes a pointer to a gorm.DB object and returns a Models struct.
-It sets the package level variable db to the gorm.DB object passed to it.
-*/
-// func New(dbPool *gorm.DB) Models {
-// 	db = dbPool
-
-// 	db.AutoMigrate(&Organization{}, &User{})
-// 	populateDatabase()
-
-// 	return Models{
-// 		User:         User{},
-// 		Organization: Organization{},
-// 	}
-// }
 
 /*
 =====================
