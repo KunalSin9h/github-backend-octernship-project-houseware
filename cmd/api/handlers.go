@@ -48,7 +48,7 @@ func (app *Config) login(c *gin.Context) {
 		return
 	}
 
-	user, err := app.Models.User.GetByUsername(username)
+	user, err := app.Repo.GetByUsername(username)
 
 	if err != nil {
 		sendResponse("Error while getting user", "error while getting user", nil, c, http.StatusInternalServerError)
@@ -61,7 +61,7 @@ func (app *Config) login(c *gin.Context) {
 		return
 	}
 
-	isPasswordMatched, err := user.PasswordMatch(password)
+	isPasswordMatched, err := app.Repo.PasswordMatch(password, *user)
 
 	if err != nil {
 		sendResponse("Error while verifying password", err.Error(), nil, c, http.StatusInternalServerError)
@@ -110,14 +110,14 @@ AllUsers is a handler that return all other users in the organization.
 func (app *Config) allUsers(c *gin.Context) {
 	userId, _ := c.Get("userId")
 
-	user, err := app.Models.User.GetByID(userId.(string))
+	user, err := app.Repo.GetByID(userId.(string))
 
 	if err != nil {
 		sendResponse("User does not exist", err.Error(), nil, c, http.StatusBadRequest)
 		return
 	}
 
-	users, err := user.GetAllOtherUsersInOrg()
+	users, err := app.Repo.GetAllOtherUsersInOrg(*user)
 
 	if err != nil {
 		sendResponse("Failed to get all users", err.Error(), nil, c, http.StatusInternalServerError)
@@ -136,7 +136,7 @@ It can only be called by an admin.
 func (app *Config) addUser(c *gin.Context) {
 	currentUserId, _ := c.Get("userId")
 
-	currentUser, err := app.Models.User.GetByID(currentUserId.(string))
+	currentUser, err := app.Repo.GetByID(currentUserId.(string))
 
 	if err != nil {
 		sendResponse("User does not exist", err.Error(), nil, c, http.StatusBadRequest)
@@ -175,7 +175,7 @@ func (app *Config) addUser(c *gin.Context) {
 		Role:           "member",
 	}
 
-	err = app.Models.User.Insert(userToAdd)
+	err = app.Repo.Insert(userToAdd)
 
 	if err != nil {
 		sendResponse("Failed to add new user", err.Error(), nil, c, http.StatusInternalServerError)
@@ -194,7 +194,7 @@ It can only be called by an admin.
 func (app *Config) deleteUser(c *gin.Context) {
 	currentUserId, _ := c.Get("userId")
 
-	currentUser, err := app.Models.User.GetByID(currentUserId.(string))
+	currentUser, err := app.Repo.GetByID(currentUserId.(string))
 
 	if err != nil {
 		sendResponse("Failed to get user", err.Error(), nil, c, http.StatusBadRequest)
@@ -224,7 +224,7 @@ func (app *Config) deleteUser(c *gin.Context) {
 		return
 	}
 
-	userToDelete, err := app.Models.User.GetByUsername(username)
+	userToDelete, err := app.Repo.GetByUsername(username)
 
 	if err != nil {
 		sendResponse("Failed to delete user", err.Error(), nil, c, http.StatusInternalServerError)
@@ -236,7 +236,7 @@ func (app *Config) deleteUser(c *gin.Context) {
 		return
 	}
 
-	err = userToDelete.Delete()
+	err = app.Repo.Delete(*userToDelete)
 
 	if err != nil {
 		sendResponse("Failed to delete user", err.Error(), nil, c, http.StatusBadRequest)

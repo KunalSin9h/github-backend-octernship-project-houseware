@@ -16,10 +16,21 @@ var db *gorm.DB
 
 const dbQueryTimeout = time.Second * 2
 
-type Models struct {
-	User         User
-	Organization Organization
+type PostgresRepository struct {
+	Conn *gorm.DB
 }
+
+func NewPostgresRepository(pool *gorm.DB) *PostgresRepository {
+	db = pool
+	return &PostgresRepository{
+		Conn: pool,
+	}
+}
+
+// type Models struct {
+// 	User         User
+// 	Organization Organization
+// }
 
 type GormModel struct {
 	ID        string    `json:"id" gorm:"primaryKey"`
@@ -45,17 +56,17 @@ type User struct {
 data.New is a function that takes a pointer to a gorm.DB object and returns a Models struct.
 It sets the package level variable db to the gorm.DB object passed to it.
 */
-func New(dbPool *gorm.DB) Models {
-	db = dbPool
+// func New(dbPool *gorm.DB) Models {
+// 	db = dbPool
 
-	db.AutoMigrate(&Organization{}, &User{})
-	populateDatabase()
+// 	db.AutoMigrate(&Organization{}, &User{})
+// 	populateDatabase()
 
-	return Models{
-		User:         User{},
-		Organization: Organization{},
-	}
-}
+// 	return Models{
+// 		User:         User{},
+// 		Organization: Organization{},
+// 	}
+// }
 
 /*
 =====================
@@ -82,10 +93,12 @@ func (user *User) BeforeDelete(tx *gorm.DB) (err error) {
 	return
 }
 
+// =====================================================
+
 /*
 GetByUsername is a method that takes a username and returns a User struct and an error.
 */
-func (u *User) GetByUsername(username string) (*User, error) {
+func (u *PostgresRepository) GetByUsername(username string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
 
@@ -102,7 +115,7 @@ func (u *User) GetByUsername(username string) (*User, error) {
 /*
 GetById is a method that takes an id and returns a User struct and an error.
 */
-func (u *User) GetByID(id string) (*User, error) {
+func (u *PostgresRepository) GetByID(id string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
 
@@ -119,7 +132,7 @@ func (u *User) GetByID(id string) (*User, error) {
 /*
 Insert is a method that inserts a User struct into the database and returns an error.
 */
-func (u *User) Insert(user User) error {
+func (u *PostgresRepository) Insert(user User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
 
@@ -143,11 +156,11 @@ func (u *User) Insert(user User) error {
 /*
 Delete is a method that deletes a User struct from the database and returns an error.
 */
-func (u *User) Delete() error {
+func (u *PostgresRepository) Delete(user User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
 
-	err := db.WithContext(ctx).Model(&User{}).Delete(&u).Error
+	err := db.WithContext(ctx).Model(&User{}).Delete(&user).Error
 
 	if err != nil {
 		return err
@@ -159,8 +172,8 @@ func (u *User) Delete() error {
 /*
 PasswordMatch is a method that takes a plain text password and matches it with hash password and returns a boolean and an error.
 */
-func (u *User) PasswordMatch(plainTextPassword string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainTextPassword))
+func (u *PostgresRepository) PasswordMatch(plainTextPassword string, user User) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(plainTextPassword))
 
 	if err != nil {
 		switch {
@@ -178,13 +191,13 @@ func (u *User) PasswordMatch(plainTextPassword string) (bool, error) {
 /*
 GetAllUsersInOrg is a method that returns all other users from the same organization
 */
-func (u *User) GetAllOtherUsersInOrg() ([]User, error) {
+func (u *PostgresRepository) GetAllOtherUsersInOrg(user User) ([]User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbQueryTimeout)
 	defer cancel()
 
 	var users []User
 
-	err := db.WithContext(ctx).Model(&User{}).Find(&users, "organization_id = ? and id != ?", u.OrganizationID, u.ID).Error
+	err := db.WithContext(ctx).Model(&User{}).Find(&users, "organization_id = ? and id != ?", user.OrganizationID, user.ID).Error
 
 	if err != nil {
 		return []User{}, err

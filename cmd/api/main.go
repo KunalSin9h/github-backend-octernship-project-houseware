@@ -6,13 +6,14 @@ import (
 	"log"
 	"net/http"
 	"os"
-
-	"gorm.io/gorm"
 )
 
+/*
+data.Repository is an interface which we will use to put a real Postgres database when deploying in producing
+and put a mock postgres database for testing
+*/
 type Config struct {
-	DB     *gorm.DB
-	Models data.Models
+	Repo data.Repository
 }
 
 var (
@@ -41,11 +42,10 @@ func init() {
 
 func main() {
 
-	dbPool := data.ConnectDatabase(DSN)
+	pool := data.ConnectDatabase(DSN)
 
 	app := Config{
-		DB:     dbPool,
-		Models: data.New(dbPool),
+		Repo: data.NewPostgresRepository(pool), // Real Postgres database connection
 	}
 
 	server := &http.Server{
