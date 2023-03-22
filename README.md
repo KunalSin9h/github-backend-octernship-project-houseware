@@ -112,7 +112,7 @@ This will start the following services:
 
    endpoint: **GET** `/v1/users`
 
-### When User is logged in, then the JWT Token is set in the `Cookie` header of the response.
+### When User is logged in, then the JWT Token is set in the `Cookie`.
 
 Which means user does not have to send the auth token in the header of the request all the time.
 
