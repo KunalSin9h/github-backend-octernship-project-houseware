@@ -36,7 +36,7 @@ Run setup using Docker Compose
 
 ```bash
 cd deployments
-docker-comose up
+docker-compose up
 ```
 
 #### This will build the `auth service` and run `postgres`.

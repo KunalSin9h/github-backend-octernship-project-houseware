@@ -13,6 +13,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+/*
+Testing POST /v1/login
+
+	-> Success
+*/
 func Test_LoginSuccess(t *testing.T) {
 
 	var testPayload = map[string]any{
@@ -51,6 +56,11 @@ func Test_LoginSuccess(t *testing.T) {
 	}
 }
 
+/*
+Testing POST /v1/login
+
+	-> Missing username and password in request payload
+*/
 func Test__LoginBadRequest(t *testing.T) {
 
 	var testPayload = map[string]any{} // empty request payload
@@ -77,6 +87,11 @@ func Test__LoginBadRequest(t *testing.T) {
 	}
 }
 
+/*
+Testing POST /v1/logout
+
+	-> Success
+*/
 func Test_Logout(t *testing.T) {
 
 	req, err := http.NewRequest(http.MethodPost, "/v1/logout", nil)
@@ -351,7 +366,7 @@ func Test_DeleteUserBadRequest_MissingCred(t *testing.T) {
 }
 
 /*
-Function to get a dummy JWT Token for testing AllUsers endpoint
+Function to get a dummy JWT Token for testing Handlers
 */
 func getJWTTestToken() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{

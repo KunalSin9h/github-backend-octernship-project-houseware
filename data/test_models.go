@@ -14,6 +14,12 @@ func NewPostgresTestRepository(pool *gorm.DB) *PostgresTestRepository {
 	}
 }
 
+/*
+=======================
+Mocking Database
+======================
+*/
+
 func (tr *PostgresTestRepository) GetByUsername(username string) (*User, error) {
 	user := User{
 		Username:       "test-username",
