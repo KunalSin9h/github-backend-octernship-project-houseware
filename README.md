@@ -8,6 +8,7 @@ Status: :green_circle: Completed
 
 1. Go
 2. Docker
+3. GNU Make (optional)
 
 ### Setup
 
@@ -137,6 +138,14 @@ To run tests, run the following command
 
 ```bash
 make test
+```
+
+**OR**
+
+You can use `go test` command to run the tests.
+
+```bash
+go test ./cmd/api/*.go
 ```
 
 This will run test for all the Endpoints, for success and for failures.
