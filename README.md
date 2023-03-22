@@ -120,6 +120,8 @@ After setting up the local development environment, you can test the API using `
 
 The `Postman` Collection for the APIs is: https://www.postman.com/kunalsin9h/workspace/auth-services-apis/collection/17603911-847fa63f-e436-4cbd-b7f4-c233d23c1f0f?action=share&creator=17603911
 
+The Exported `Postman` Collection is in the `assets` folder.
+
 ### Testing APIs
 
 The database is populated with dummy data for testing.
