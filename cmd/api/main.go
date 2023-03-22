@@ -9,8 +9,8 @@ import (
 )
 
 /*
-data.Repository is an interface which we will use to put a real Postgres database when deploying in producing
-and put a mock postgres database for testing
+data.Repository is an interface which we will use to put a real Postgres database when deploying in production
+and put a mock database for testing
 */
 type Config struct {
 	Repo data.Repository

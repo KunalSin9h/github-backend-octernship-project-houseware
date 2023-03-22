@@ -1,14 +1,14 @@
 package data
 
 /*
-	Repository Method to make our database testable
+	Repository Method to make our handlers testable by mocking database.
 
-	PostgresRepository----
-	                      \__ Repository
-						  /
-	TestRepository-------
+	PostgresRepository ----------
+	                             \__ Repository
+						         /
+	PostgresTestRepository-------
 
-	TestRepository will also define these methods but they will be dummy and return
+	PostgresTestRepository will also define these methods but they will be dummy and return
 	data without query the database
 */
 
