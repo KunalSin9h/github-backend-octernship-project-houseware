@@ -101,7 +101,7 @@ Every user has password of `password`
 
 ### Things to do
 
-- [ ] Testing
+- [x] Testing
 
 ### Design Decisions
 
