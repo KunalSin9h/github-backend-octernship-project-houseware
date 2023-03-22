@@ -178,6 +178,26 @@ This can be done without using ORM like `GORM`, by simply using `database/sql` s
 
 I have used `Postgres` as the database because it is very feature rich, such as `JSONB` data type can be used to store any meta data about the user.
 
+The Database design is very simple. It has only 2 tables.
+
+```go
+type Organization struct {
+   ID    string
+	Name  string
+	Users []User
+}
+
+type User struct {
+   ID             string
+	Username       string
+	Password       string
+	Role           string
+	OrganizationID string
+}
+```
+
+The `Organization` table stores the information about the organization. And the `User` table stores the information about the users. The `Organization` table has a `One to Many` relationship with the `User` table. This means that one organization can have many users. But one user can only belong to one organization.
+
 I have used `Docker` for local development environment because it is very easy to setup and use.
 
 I have used [`jwt-go`](https://github.com/golang-jwt/jwt) as the library for JWT. JWT is secure Authentication method.
