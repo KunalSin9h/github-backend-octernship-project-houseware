@@ -182,13 +182,13 @@ The Database design is very simple. It has only 2 tables.
 
 ```go
 type Organization struct {
-   ID    string
+	ID    string
 	Name  string
 	Users []User
 }
 
 type User struct {
-   ID             string
+	ID             string
 	Username       string
 	Password       string
 	Role           string
