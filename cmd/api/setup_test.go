@@ -17,13 +17,14 @@ import (
 	We are going to setup the PostgresTestRepository which mock Postgres Database for testing
 */
 
-var testApp Config // package level variable used by `handlers_test.go`
-var router *gin.Engine
+var router *gin.Engine // package level variable used by `handlers_test.go`
 
 func TestMain(m *testing.M) {
 
-	repo := data.NewPostgresTestRepository(nil)
-	testApp.Repo = repo
+	testApp := Config{
+		Repo: data.NewPostgresTestRepository(nil),
+	}
+
 	router = testApp.routes()
 
 	os.Exit(m.Run())
