@@ -50,7 +50,7 @@ This will start the following services:
 
     - `PORT` - port on which the service will be running (default: `5000`)
     - `DSN` - Postgres connection string (default: `postgres://local:local@localhost:5432/local`)
-    - `JWT_SECRET` - Secret key for jwt (default: `secret`)
+    - `JWT_SECRET` - Secret key for jwt (default: `$ecret`)
 
 ## API Documentation
 
