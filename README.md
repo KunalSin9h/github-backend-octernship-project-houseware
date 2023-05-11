@@ -130,7 +130,7 @@ The database is populated with dummy data for testing.
 
 The dummy data looks like
 
-![If this image is not available, then see the image in folder = backend/assets](https://tiddi.kunalsin9h.dev/LcturXP)
+![If this image is not available, then see the image in folder = backend/assets](https://tiddi.kunalsin9h.dev/iOZ_-pT)
 
 Here the members with start are `admins`
 
