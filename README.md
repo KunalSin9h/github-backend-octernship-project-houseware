@@ -1,6 +1,6 @@
 # About
 
-This is a Backend Authentication Service Project created for GitHub Octernship, at [Houseware](Houseware.io)
+This is a Backend Authentication Service Project created at GitHub Octernship for [Houseware](https://www.houseware.io)
 
 # Project Documentation
 
