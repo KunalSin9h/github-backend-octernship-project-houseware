@@ -1,6 +1,8 @@
-# Project Documentation
+# About
 
-Status: :green_circle: Completed
+This is a Backend Authentication Service Project created for GitHub Octernship, at [Houseware](Houseware.io)
+
+# Project Documentation
 
 ## Setup Local Development Environment
 
@@ -15,13 +17,13 @@ Status: :green_circle: Completed
 Clone the repository
 
 ```bash
-git clone https://github.com/HousewareHQ/houseware---backend-engineering-octernship-KunalSin9h.git
+git clone https://github.com/KunalSin9h/github-backend-octernship-project-houseware.git
 ```
 
 Go to the cloned folder
 
 ```bash
-cd houseware---backend-engineering-octernship-KunalSin9h
+cd github-backend-octernship-project-houseware
 ```
 
 Run setup using GNU Make
